@@ -27,6 +27,13 @@ defmodule Error do
     }
   end
 
+  def new(message, arg) when is_binary(message) and is_binary(arg) do
+    %Error{
+      message: "#{message}",
+      nested_error: new(arg)
+    }
+  end
+
   def new(message, arg) when is_binary(message) do
     %Error{
       message: "#{message}: #{inspect(arg)}"
@@ -39,7 +46,14 @@ defmodule Error do
     }
   end
 
-  def wrap(%Error{} = inner, %Error{} = outer) do
+  def wrap_in(%Error{} = inner, outer) when is_binary(outer) do
+    %Error{
+      message: outer,
+      nested_error: inner
+    }
+  end
+
+  def wrap_in(%Error{} = inner, %Error{} = outer) do
     %Error{
       outer
       | nested_error: inner
